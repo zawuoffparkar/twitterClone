@@ -55,7 +55,7 @@ function handleDeleteClick(tweetId) {
     return tweet.uuid === tweetId;
   })[0];
 
-  // can use indexOf method for knwoing the index of a something in an array.
+  // can use indexOf method for knowing the index of a something in an array.
   const targetTweetDelete = tweetsData.indexOf(targetTweetObj);
   // console.log(targetTweetDelete)
   // basically can use splice to remove something in an array at a specific index
