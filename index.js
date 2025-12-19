@@ -1,5 +1,16 @@
-import { tweetsData } from "./data.js";
+import { tweetsData as mainData } from "./data.js";
 import { v4 as uuidv4 } from "https://jspm.dev/uuid";
+
+//to make local stoarage work - we need to first check if there is a saved data in the storage, if do so, we show that.
+const savedTweet = localStorage.getItem("tweet"); //basically getting the item "tweet" from the local storage and saving it, and then using it later to reassign it to tweetsData
+
+let tweetsData;
+
+if (savedTweet) {
+  tweetsData = JSON.parse(savedTweet);
+} else {
+  tweetsData = mainData;
+}
 
 document.addEventListener("click", function (e) {
   if (e.target.dataset.like) {
@@ -18,6 +29,10 @@ document.addEventListener("click", function (e) {
   }
 });
 
+function syncTweets() {
+  localStorage.setItem("tweet", JSON.stringify(tweetsData));
+}
+
 function handleLikeClick(tweetId) {
   const targetTweetObj = tweetsData.filter(function (tweet) {
     return tweet.uuid === tweetId;
@@ -29,6 +44,7 @@ function handleLikeClick(tweetId) {
     targetTweetObj.likes++;
   }
   targetTweetObj.isLiked = !targetTweetObj.isLiked;
+  syncTweets();
   render();
 }
 
@@ -43,6 +59,7 @@ function handleRetweetClick(tweetId) {
     targetTweetObj.retweets++;
   }
   targetTweetObj.isRetweeted = !targetTweetObj.isRetweeted;
+  syncTweets();
   render();
 }
 
@@ -60,24 +77,26 @@ function handleDeleteClick(tweetId) {
   // console.log(targetTweetDelete)
   // basically can use splice to remove something in an array at a specific index
   tweetsData.splice(targetTweetDelete, 1);
+  syncTweets();
   render();
 }
 
 function handleTweetBtnClick() {
   const tweetInput = document.getElementById("tweet-input");
-
+  const newTweet = {
+    handle: `@Scrimba`,
+    profilePic: `images/scrimbalogo.png`,
+    likes: 0,
+    retweets: 0,
+    tweetText: tweetInput.value,
+    replies: [],
+    isLiked: false,
+    isRetweeted: false,
+    uuid: uuidv4(),
+  };
   if (tweetInput.value) {
-    tweetsData.unshift({
-      handle: `@Scrimba`,
-      profilePic: `images/scrimbalogo.png`,
-      likes: 0,
-      retweets: 0,
-      tweetText: tweetInput.value,
-      replies: [],
-      isLiked: false,
-      isRetweeted: false,
-      uuid: uuidv4(),
-    });
+    tweetsData.unshift(newTweet);
+    syncTweets();
     render();
     tweetInput.value = "";
   }
@@ -94,6 +113,7 @@ function replyTweetBtnClick(tweetId) {
       profilePic: `images/scrimbalogo.png`,
       tweetText: replyInput.value,
     });
+    syncTweets();
     render();
   }
 
